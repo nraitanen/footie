@@ -4,7 +4,7 @@ import re
 
 from time import sleep
 from random import random
-from pymongo import MongoClient
+from helpers import connect_db
 
 
 def wait(delay=4, variation=2):
@@ -54,17 +54,12 @@ def get_match_data(match_id):
 def push_match_data(match_data, db_name="footie", collection="matches",
                     overwrite=False):
     # Open up connection to MongoClient and select db/collection
-    try:
-        client = MongoClient(port=27017)
-    except:
-        print("Couldn't connect to a MongoDB server.")
-    db = client[db_name]
-    col = db[collection]
+    client, con = connect_db(db_name, collection)
     
     # Check if record already exists
-    if bool(col.find_one({"match_id": match_data["match_id"]})):
+    if bool(con.find_one({"match_id": match_data["match_id"]})):
         if overwrite:
-            col.replace_one({"match_id": match_data["match_id"]},
+            con.replace_one({"match_id": match_data["match_id"]},
                              match_data)
         else:
             print("Match already exists in database - no overwrite selected!")
@@ -72,14 +67,19 @@ def push_match_data(match_data, db_name="footie", collection="matches",
     # If no previous records, just insert a new one
     else:
         # Insert match record to selected collection
-        col.insert_one(match_data)
+        con.insert_one(match_data)
         print("Match data successfully inserted to collection "" + \
               collection + "".")
+    # Close the connection
+    client.close()
         
     
 for i in range(2614, 15000):
     mdata = get_match_data(i)
     if mdata:
         push_match_data(mdata)
+        
+        
+# LAST: 13228
     
     
