@@ -7,7 +7,7 @@ from random import random
 from pymongo import MongoClient
 
 
-def wait(delay=3, variation=1):
+def wait(delay=4, variation=2):
     m, x, c = variation, random(), delay - variation / 2
     sleep(m * x + c)
 
@@ -44,7 +44,7 @@ def get_match_data(match_id):
                   "matchinfo": matchinfo,
                   "rosters": rosterdata}
     
-    # Slow down not to reduce load on server    
+    # Slow down to reduce load on server    
     wait()
     print("Completed.")
     
@@ -73,11 +73,11 @@ def push_match_data(match_data, db_name="footie", collection="matches",
     else:
         # Insert match record to selected collection
         col.insert_one(match_data)
-        print("Match data successfully inserted to collection " + \
-              collection + ".")
+        print("Match data successfully inserted to collection "" + \
+              collection + "".")
         
     
-for i in range(1, 15000):
+for i in range(2614, 15000):
     mdata = get_match_data(i)
     if mdata:
         push_match_data(mdata)
